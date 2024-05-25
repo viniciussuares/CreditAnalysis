@@ -38,7 +38,7 @@ def save_clean_df(df: pd.DataFrame, path: str):
 def divide_train_test(df: pd.DataFrame, X_columns: list, y_column: str):
     X = df[X_columns]
     y = df[y_column]
-    return train_test_split(X, y, test_size=.8, random_state=42)
+    return train_test_split(X, y, test_size=.2, random_state=42)
 
 def normalizer(X_train: pd.DataFrame, X_test: pd.DataFrame):
     norm = PowerTransformer().fit(X_train)
