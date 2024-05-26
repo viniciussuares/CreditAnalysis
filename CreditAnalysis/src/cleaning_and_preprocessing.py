@@ -15,7 +15,7 @@ def transform_binary(df: pd.DataFrame, column_list: list):
 def create_target(df: pd.DataFrame, max_share: float):
     # Creates a mask for all rows who received a card and spent less than their maximum share
     mask = (df['card'] == 1) & (df['share'] <= max_share)
-    df.loc[df[mask].index, 'target'] = 1
+    df.loc[mask, 'target'] = 1
     df['target'].fillna(0, inplace=True)
 
 def remove_columns(df: pd.DataFrame, column_list: list):
