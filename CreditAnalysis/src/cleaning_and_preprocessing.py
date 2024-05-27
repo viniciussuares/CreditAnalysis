@@ -49,7 +49,7 @@ def scaler(X_train: pd.DataFrame, X_test: pd.DataFrame):
     return minmax.transform(X_train), minmax.transform(X_test)
 
 def save_preprocessed_data(pickle_objects_list: list, pickle_names_list: list, folder_path: str):
-    pickle_paths = [os.path.join(folder_path, f'{pickle}.pickle') for pickle in pickle_names_list]
+    pickle_paths = [os.path.join(folder_path, f'{pickle_name}.pickle') for pickle_name in pickle_names_list]
     for i in range(len(pickle_objects_list)):
         dump(pickle_objects_list[i], pickle_paths[i])
 
