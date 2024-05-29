@@ -14,11 +14,11 @@ MAX_SHARE = 1/12
 TARGET = 'target'
 
 # Column lists
-CONTINUOUS_FEATURES = ['age', 'income', 'active', 'months']
+CONTINUOUS_FEATURES = ['age', 'income', 'months']
 NON_BIN_FEATURES = ['reports', 'dependents']
 BIN_FEATURES = ['card', 'selfemp', 'owner']
 TO_DROP_COLUMNS = ['rownames', 'share']
-FEATURE_ORDER = ['age', 'income', 'active', 'months', 'reports', 'dependents', 'selfemp', 'owner', 'majorcards']
+FEATURE_ORDER = ['age', 'income', 'months', 'reports', 'dependents', 'selfemp', 'owner']
 
 # Pickle Objects
 PICKLE_NAMES_LIST = ['X_train', 'X_test', 'y_train', 'y_test']

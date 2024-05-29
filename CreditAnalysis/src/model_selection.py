@@ -19,19 +19,22 @@ def compare_two_scores(scores_1: list, scores_2: list, significance_level = 0.05
     This function does the following:
     1. Creates a new array of the differences between the scores
     2. Test to see if the new array seems to be normally distributed
-    3. If yes, uses t-test to verify if differences are statistically significant. Otherwise, does wilcoxon
+    3. If yes, uses paired t-test to verify if differences are statistically significant. Otherwise, does wilcoxon
     """
-    differences = np.array(scores_2) - np.array(scores_1)
-    if shapiro(differences)[1] >= significance_level: 
-        return ttest_rel(scores_1, scores_2)[1] < significance_level # Scores were significantly different
+    if np.array_equal(scores_1, scores_2):
+        return True # optmized was simplest
     else:
-        return wilcoxon(scores_1, scores_2)[1] < significance_level # Scores were significantly different
+        differences = np.array(scores_2) - np.array(scores_1)
+        if shapiro(differences)[1] >= significance_level: 
+            return ttest_rel(scores_1, scores_2)[1] < significance_level # Scores were significantly different
+        else:
+            return wilcoxon(scores_1, scores_2)[1] < significance_level # Scores were significantly different
 
 def perform_randomized_search(model_class, model_params, X, y):
     optmized_model = RandomizedSearchCV(
         model_class, 
         model_params, 
-        n_iter=30, 
+        n_iter=20, 
         cv=5, 
         n_jobs=-1, 
         scoring='f1_weighted')
