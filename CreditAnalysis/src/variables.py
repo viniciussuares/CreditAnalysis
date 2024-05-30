@@ -8,6 +8,8 @@ from sklearn.ensemble import RandomForestClassifier
 DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
 RAW_FILE_PATH = os.path.join(DATA_PATH, "CreditCard.csv")
 CLEAN_FILE_PATH = os.path.join(DATA_PATH, "CreditCardClean.csv")
+MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models"))
+MODEL_FILE_PATH = os.path.join(MODEL_PATH, "WinnerModel.joblib")
 
 # Regular variables
 MAX_SHARE = 1/12
@@ -31,6 +33,7 @@ MODELS = {
             'C': [.01, .1, 1, 10, 100],
             'class_weight': ['balanced', None],
             'solver': ['lbfgs', 'liblinear'],
+            'fit_intercept': [True, False],
             'random_state': [42]
         }
 
