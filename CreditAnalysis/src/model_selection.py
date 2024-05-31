@@ -2,6 +2,7 @@
 import os
 import variables
 import numpy as np
+import pandas as pd
 from scipy.stats import ttest_rel, shapiro, wilcoxon, levene, f_oneway, kruskal
 from sklearn.model_selection import cross_val_score, RandomizedSearchCV
 import joblib
@@ -13,6 +14,20 @@ def import_train_test(folder_path: str, pickle_objects_names: list):
         object = joblib.load(object_path)
         objects.append(object)
     return objects
+
+def combine_xs_ys(X_train, X_test, y_train, y_test):
+    return pd.concat([X_train, X_test]), pd.concat([y_train, y_test])
+
+def perform_randomized_search(model_class, model_params, X, y):
+    optmized_model = RandomizedSearchCV(
+        model_class, 
+        model_params, 
+        n_iter=30, 
+        cv=5, 
+        n_jobs=-1, 
+        scoring='f1_weighted')
+    optmized_model.fit(X, y)
+    return optmized_model.best_estimator_
 
 def compare_two_scores(scores_1: list, scores_2: list, significance_level = 0.05):
     """ 
@@ -29,17 +44,6 @@ def compare_two_scores(scores_1: list, scores_2: list, significance_level = 0.05
             return ttest_rel(scores_1, scores_2).pvalue < significance_level # Scores were significantly different
         else:
             return wilcoxon(scores_1, scores_2).pvalue < significance_level # Scores were significantly different
-
-def perform_randomized_search(model_class, model_params, X, y):
-    optmized_model = RandomizedSearchCV(
-        model_class, 
-        model_params, 
-        n_iter=30, 
-        cv=5, 
-        n_jobs=-1, 
-        scoring='f1_weighted')
-    optmized_model.fit(X, y)
-    return optmized_model.best_estimator_
 
 def choose_optmized_or_simplest(models: dict, X, y):
     """
@@ -63,6 +67,23 @@ def choose_optmized_or_simplest(models: dict, X, y):
         else:
             winners[model] = optmized
     return winners
+
+def compare_two_winners(models: list, scores: list):
+    """
+    This function compare two winners after verifying there is a difference between the 3 models
+    If there's no difference between 2 winners, choose the simplest (Logistic Regression > SVC > Random Forest)
+    """
+    mean_scores = [np.mean(score) for score in scores]
+    max_index = np.argmax(mean_scores)
+    middle_index = [index for index in range(3) if index not in [max_index, np.argmin(mean_scores)]][0]
+    # choose two with greatest means
+    if compare_two_scores(scores[max_index], scores[middle_index]): # max and middle are different
+        return models[max_index]
+    else:
+        if "Logistic Regression" in [models[max_index], models[middle_index]]:
+            return "Logistic Regression"
+        else:
+            return "SVC"
 
 def choose_winner(winners: dict, X, y, significance_level=0.05):
     """
@@ -95,23 +116,6 @@ def choose_winner(winners: dict, X, y, significance_level=0.05):
             # Check if the difference is between the 2 with greatest mean scores
             return winners[compare_two_winners(models, scores)]
 
-def compare_two_winners(models: list, scores: list):
-    """
-    This function compare two winners after verifying there is a difference between the 3 models
-    If there's no difference between 2 winners, choose the simplest (Logistic Regression > SVC > Random Forest)
-    """
-    mean_scores = [np.mean(score) for score in scores]
-    max_index = np.argmax(mean_scores)
-    middle_index = [index for index in range(3) if index not in [max_index, np.argmin(mean_scores)]][0]
-    # choose two with greatest means
-    if compare_two_scores(scores[max_index], scores[middle_index]): # max and middle are different
-        return models[max_index]
-    else:
-        if "Logistic Regression" in [models[max_index], models[middle_index]]:
-            return "Logistic Regression"
-        else:
-            return "SVC"
-
 def train_grand_winner(grand_winner, X, y):
     return grand_winner.fit(X, y)
 
@@ -119,9 +123,11 @@ def save_grand_winner(grand_winner, path):
     joblib.dump(grand_winner, path)
 
 def main():
-    X_train, _, y_train, _ = import_train_test(variables.DATA_PATH, variables.PICKLE_NAMES_LIST)
-    winners = choose_optmized_or_simplest(variables.MODELS, X_train, y_train)
-    grand_winner = choose_winner(winners, X_train, y_train)
+    X_train, X_test, y_train, y_test = import_train_test(variables.DATA_PATH, variables.PICKLE_NAMES_LIST)
+    X, y = combine_xs_ys(X_train, X_test, y_train, y_test)
+    print(X, y)
+    winners = choose_optmized_or_simplest(variables.MODELS, X, y)
+    grand_winner = choose_winner(winners, X, y)
     print(f"The selected model was ... {grand_winner}!")
     train_grand_winner(grand_winner, X_train, y_train)
     save_grand_winner(grand_winner, variables.MODEL_FILE_PATH)
