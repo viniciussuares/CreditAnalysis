@@ -44,6 +44,7 @@ MODELS = {
             'C': [.01, .1, 1, 10, 100],
             'class_weight': ['balanced', None],
             'kernel': ['linear', 'sigmoid', 'rbf'],
+            'probability': [True],
             'random_state': [42]
         }
     },

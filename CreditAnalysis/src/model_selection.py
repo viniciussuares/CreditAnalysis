@@ -125,7 +125,6 @@ def save_grand_winner(grand_winner, path):
 def main():
     X_train, X_test, y_train, y_test = import_train_test(variables.DATA_PATH, variables.PICKLE_NAMES_LIST)
     X, y = combine_xs_ys(X_train, X_test, y_train, y_test)
-    print(X, y)
     winners = choose_optmized_or_simplest(variables.MODELS, X, y)
     grand_winner = choose_winner(winners, X, y)
     print(f"The selected model was ... {grand_winner}!")
